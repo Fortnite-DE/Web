@@ -1,3 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+    font-family: 'Poppins';
+    font-style: italic;
+    font-weight: 900;
+    src: local(''),
+    url('../public/fonts/poppins_black_italic.ttf') format('truetype') /* Safari, Android, iOS */
+}
+
+@layer components {
+    .fortnite-button-shadow {
+        box-shadow: 6px 6px 0 black;
+    }
+
+    .fortnite-button-shadow:hover {
+        box-shadow: 10px 10px 0 black;
+    }
+
+    svg:not(:root) {
+        overflow: hidden;
+    }
+
+    :not(svg) {
+        transform-origin: 0 0;
+    }
+}
