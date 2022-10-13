@@ -3,9 +3,7 @@ import type { NextPage } from 'next'
 const Home: NextPage = () => {
   return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-10 grid-rows-2 h-screen">
-          <div className="bg-[url('/images/fortnite_responsive.webp')] lg:bg-[url('/images/fortnite.webp')] h-[40vh] lg:h-screen bg-center bg-no-repeat bg-cover overflow-hidden">
-
-          </div>
+          <div className="bg-fortnite-responsive lg:bg-fortnite h-[40vh] lg:h-screen bg-center bg-no-repeat bg-cover overflow-hidden"></div>
           <div className="flex items-center flex-wrap pl-3 lg:pl-0">
               <div>
                   <h1 className="font-poppins font-black italic uppercase text-[12vw] lg:text-[5.5vh] leading-[104%] lg:pr-10">Fortnite Deutschland Discord</h1>

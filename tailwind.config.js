@@ -8,6 +8,10 @@ module.exports = {
     fontFamily: {
       'poppins': ['Poppins', 'sans-serif'],
     },
+    backgroundImage: {
+      'fortnite': "url('/images/fortnite.webp')",
+      'fortnite-responsive': "url('/images/fortnite_responsive.webp')",
+    },
     animation: {
       'arrow-colors-1': 'color_anim 1s infinite 0.6s',
       'arrow-colors-2': 'color_anim 1s infinite 0.4s',
