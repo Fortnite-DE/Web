@@ -52,7 +52,7 @@ const Leaderboard: NextPage = () => {
                         <li key={index}>
                             <Image src={user.avatarUrl} width={32} height={32} alt={`${user.username}'s avatar`}></Image>
                             <span className="text-white">
-                                {`${index + 1}.)  ${user.username} - ${numberFormatter.format(user.xp)} XP - ${numberFormatter.format(user.messages)} Messages`}
+                                {`${index + 1}.)  ${user.username} - Level ${Math.trunc(user.level)} - ${numberFormatter.format(user.xp)} XP - ${numberFormatter.format(user.messages)} Messages`}
                             </span>
                         </li>
                     ))}

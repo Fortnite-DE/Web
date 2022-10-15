@@ -8,5 +8,6 @@ type LeaderboardEntry = {
     username: string;
     avatarUrl: string;
     xp: number;
+    level: number;
     messages: number;
 }
