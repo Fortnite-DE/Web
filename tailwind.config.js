@@ -9,6 +9,7 @@ module.exports = {
       'poppins': ['Poppins', 'sans-serif'],
     },
     backgroundImage: {
+      'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
       'fortnite': "url('/images/fortnite.webp')",
       'fortnite-responsive': "url('/images/fortnite_responsive.webp')",
     },
