@@ -2,6 +2,7 @@ import {NextPage} from "next";
 import {useEffect, useState} from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Image from "next/image";
+import {NextSeo} from "next-seo";
 
 const Leaderboard: NextPage = () => {
 
@@ -41,24 +42,27 @@ const Leaderboard: NextPage = () => {
         maximumFractionDigits: 1
     });
     return (
-        <div className="bg-black">
-            <InfiniteScroll
-                next={fetchMoreData}
-                hasMore={hasMoreUsers}
-                loader={<h3>Loading...</h3>}
-                dataLength={users.length}>
-                <ul>
-                    {users.map((user: LeaderboardEntry, index: number) => (
-                        <li key={index}>
-                            <Image src={user.avatarUrl} width={32} height={32} alt={`${user.username}'s avatar`}></Image>
-                            <span className="text-white">
-                                {`${index + 1}.)  ${user.username} - Level ${Math.trunc(user.level)} - ${numberFormatter.format(user.xp)} XP - ${numberFormatter.format(user.messages)} Messages`}
-                            </span>
-                        </li>
-                    ))}
-                </ul>
-            </InfiniteScroll>
-        </div>
+        <>
+            <NextSeo title="Level Leaderboard"/>
+            <div className="bg-black">
+                <InfiniteScroll
+                    next={fetchMoreData}
+                    hasMore={hasMoreUsers}
+                    loader={<h3>Loading...</h3>}
+                    dataLength={users.length}>
+                    <ul>
+                        {users.map((user: LeaderboardEntry, index: number) => (
+                            <li key={index}>
+                                <Image src={user.avatarUrl} width={32} height={32} alt={`${user.username}'s avatar`}></Image>
+                                <span className="text-white">
+                                    {`${numberFormatter.format(index + 1)}.)  ${user.username} - Level ${Math.trunc(user.level)} - ${numberFormatter.format(user.xp)} XP - ${numberFormatter.format(user.messages)} Messages`}
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                </InfiniteScroll>
+            </div>
+        </>
     )
 }
 
