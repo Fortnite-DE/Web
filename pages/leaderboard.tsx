@@ -1,5 +1,5 @@
 import {NextPage} from "next";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Image from "next/image";
 import {NextSeo} from "next-seo";
@@ -33,9 +33,8 @@ const Leaderboard: NextPage = () => {
     }
 
     useEffect(() => {
-        if (users.length !== 0 || !hasMoreUsers) return;
         fetchData().then(data => setUsers(data));
-    });
+    }, []);
 
     let numberFormatter = new Intl.NumberFormat('de-DE', {
         notation: 'compact',
