@@ -47,7 +47,7 @@
         padding: 20px;
     }
 
-    .unban-error-message {
+    .unban-error {
         font-size: 24px;
         color: darkred;
     }

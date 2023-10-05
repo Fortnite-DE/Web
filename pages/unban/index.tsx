@@ -98,7 +98,7 @@ const Unban: NextPage = () => {
         <div className="unban-container">
             {error && (
                 <>
-                    <div className="unban-error-message">Der Link zum Entbannungsformular ist ungültig.</div>
+                    <div className="unban-error">Der Link zum Entbannungsformular ist ungültig.</div>
                 </>
             )}
 
