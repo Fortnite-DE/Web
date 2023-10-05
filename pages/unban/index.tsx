@@ -77,23 +77,35 @@ const Unban: NextPage = () => {
 
             return () => clearInterval(timer);
         }
-      }, [timestamp]);
+    }, [timestamp]);
+
+    function generateDateString() {
+        const date = new Date(new Date(timestamp).toLocaleString());
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        
+        return `${day}.${month}.${year}, ${hours}:${minutes}:${seconds}`;
+    }
 
     if (isRedirecting)
         return null;
 
     return (
-        <div>
+        <div className="unban-container">
             {error && (
                 <>
-                    <div>Der Link zum Entbannungsformular ist ungültig.</div>
+                    <div className="unban-error-message">Der Link zum Entbannungsformular ist ungültig.</div>
                 </>
             )}
 
             {timestamp !== 0 && timeLeft !== '' && (
                 <>
-                    <div>Du kannst einen Entbannungsantrag stellen ab: {new Date(timestamp).toLocaleString()}</div>
-                    <div>{timeLeft}</div>
+                    <div className="unban-date">Du kannst einen Entbannungsantrag stellen ab: {generateDateString()}</div>
+                    <div className="unban-time-left">{timeLeft}</div>
                 </>
             )}
         </div>

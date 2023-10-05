@@ -36,4 +36,27 @@
     :not(svg) {
         transform-origin: 0 0;
     }
+
+    .unban-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .unban-error-message {
+        font-size: 24px;
+        color: darkred;
+    }
+
+    .unban-date {
+        font-size: 24px;
+    }
+      
+    .unban-time-left {
+        font-size: 30px;
+    }
 }
