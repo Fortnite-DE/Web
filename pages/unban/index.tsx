@@ -98,14 +98,14 @@ const Unban: NextPage = () => {
         <div className="unban-container">
             {error && (
                 <>
-                    <div className="unban-error">Der Link zum Entbannungsformular ist ungültig.</div>
+                    <div className="font-poppins unban-error">Der Link zum Entbannungsformular ist ungültig.</div>
                 </>
             )}
 
             {timestamp !== 0 && timeLeft !== '' && (
                 <>
-                    <div className="unban-date">Du kannst einen Entbannungsantrag stellen ab: {generateDateString()}</div>
-                    <div className="unban-time-left">{timeLeft}</div>
+                    <div className="font-poppins unban-date">Du kannst einen Entbannungsantrag stellen ab: {generateDateString()}</div>
+                    <div className="font-poppins unban-time-left">{timeLeft}</div>
                 </>
             )}
         </div>
