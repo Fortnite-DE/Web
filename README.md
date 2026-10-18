@@ -1,53 +1,38 @@
-# Next.js & NextUI Template
+# FortniteDE Web
 
-This is a template for creating applications using Next.js 14 (app directory) and NextUI (v2).
+Minimal Next.js App Router setup with TypeScript, Tailwind CSS, ESLint, and Prettier. Bun is the package manager.
 
-[Try it on CodeSandbox](https://githubbox.com/nextui-org/next-app-template)
+## Setup
 
-## Technologies Used
+Use Node.js 22+ and Bun 1.3.14.
 
-- [Next.js 14](https://nextjs.org/docs/getting-started)
-- [NextUI v2](https://nextui.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Tailwind Variants](https://tailwind-variants.org)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Framer Motion](https://www.framer.com/motion/)
-- [next-themes](https://github.com/pacocoursey/next-themes)
-
-## How to Use
-
-### Use the template with create-next-app
-
-To create a new project based on this template using `create-next-app`, run the following command:
-
-```bash
-npx create-next-app -e https://github.com/nextui-org/next-app-template
+```sh
+bun install --frozen-lockfile
+bun run dev
 ```
 
-### Install dependencies
+## Pages
 
-You can use one of them `npm`, `yarn`, `pnpm`, `bun`, Example using `npm`:
+- `/`: community landing page.
+- `/leaderboard`: live level leaderboard with automatic loading on scroll.
+- `/leaderboard?userId=1011724476754448456`: opens at the top with the personal placement card. Clicking the card loads the user's ranking page directly and smoothly centers their highlighted row. Earlier and later pages load automatically when scrolling toward either end, preserving the current viewport. Level rings show progress to the next level on hover or keyboard focus.
+- `/verify/success` and `/verify/error`: animated verification results, with troubleshooting on the error page. Reduced-motion preferences are respected.
 
-```bash
-npm install
+The same-origin `/api/leaderboard` route reads the public `auth.fn-discord.de` API for guild `398567824471097345`. It validates responses, applies request timeouts, and avoids browser CORS dependencies. No API credentials are required. At most six pages (300 rows) are kept in the browser.
+
+The font, logo, Fortnite artwork, and decorative shapes come from the existing fn-discord.de site.
+
+## Checks
+
+```sh
+bun run typecheck
+bun run lint
+bun run format:check
+bun run test
 ```
 
-### Run the development server
+`bun run typecheck` generates Next.js route types before checking TypeScript. GitHub Actions runs all four checks on pushes and pull requests.
 
-```bash
-npm run dev
-```
+Run `bun run format` to format files. Production commands are `bun run build` and `bun run start`.
 
-### Setup pnpm (optional)
-
-If you are using `pnpm`, you need to add the following code to your `.npmrc` file:
-
-```bash
-public-hoist-pattern[]=*@nextui-org/*
-```
-
-After modifying the `.npmrc` file, you need to run `pnpm install` again to ensure that the dependencies are installed correctly.
-
-## License
-
-Licensed under the [MIT license](https://github.com/nextui-org/next-app-template/blob/main/LICENSE).
+Legacy URLs `/leaderboard-beta`, `/verify-error`, and `/verify-success` redirect to their new routes, preserving query parameters.

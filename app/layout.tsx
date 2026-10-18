@@ -1,65 +1,39 @@
-import "@/styles/globals.css";
-import { Metadata, Viewport } from "next";
-import { Link } from "@nextui-org/link";
-import clsx from "clsx";
+import type { Metadata, Viewport } from "next";
+import type { ReactNode } from "react";
+import localFont from "next/font/local";
+import "./globals.css";
 
-import { Providers } from "./providers";
-
-import { siteConfig } from "@/config/site";
-import { fontSans } from "@/config/fonts";
-import { Navbar } from "@/components/navbar";
+const display = localFont({
+  src: "../public/fonts/poppins-900-italic.woff2",
+  weight: "900",
+  style: "italic",
+  variable: "--font-display",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://fn-discord.de"),
+  icons: { icon: "/favicon.png" },
   title: {
-    default: siteConfig.name,
-    template: `%s - ${siteConfig.name}`,
+    default: "Fortnite Deutschland Discord",
+    template: "%s – Fortnite DE Discord",
   },
-  description: siteConfig.description,
-  icons: {
-    icon: "/favicon.ico",
-  },
+  description:
+    "Deine deutschsprachige Fortnite Community. Finde dein Squad und werde Teil von Fortnite Deutschland Discord.",
 };
-
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "black" },
-  ],
+  themeColor: "#1a1d2b",
+  colorScheme: "dark",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html suppressHydrationWarning lang="en">
-      <head />
-      <body
-        className={clsx(
-          "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable,
-        )}
-      >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <div className="relative flex flex-col h-screen">
-            <Navbar />
-            <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
-              {children}
-            </main>
-            <footer className="w-full flex items-center justify-center py-3">
-              <Link
-                isExternal
-                className="flex items-center gap-1 text-current"
-                href="https://nextui-docs-v2.vercel.app?utm_source=next-app-template"
-                title="nextui.org homepage"
-              >
-                <span className="text-default-600">Powered by</span>
-                <p className="text-primary">NextUI</p>
-              </Link>
-            </footer>
-          </div>
-        </Providers>
+    <html lang="de" className={display.variable}>
+      <body>
+        <a className="skip-link" href="#main">
+          Zum Inhalt
+        </a>
+        {children}
       </body>
     </html>
   );
