@@ -11,6 +11,7 @@ export interface Player {
   roleColors: string[];
   xp: number;
   level: number;
+  levelProgress: number;
   messageCount: number;
 }
 
@@ -55,6 +56,10 @@ function parsePlayer(value: unknown, period: boolean): Player {
     !Number.isInteger(value.position) ||
     typeof value.position !== "number" ||
     value.position < 1 ||
+    typeof value.levelProgress !== "number" ||
+    !Number.isFinite(value.levelProgress) ||
+    value.levelProgress < 0 ||
+    value.levelProgress > 100 ||
     ![
       period ? value.periodXp : value.xp,
       value.level,
@@ -78,6 +83,7 @@ function parsePlayer(value: unknown, period: boolean): Player {
       : [],
     xp: (period ? value.periodXp : value.xp) as number,
     level: value.level as number,
+    levelProgress: value.levelProgress,
     messageCount: (period
       ? value.periodMessageCount
       : value.messageCount) as number,
@@ -142,8 +148,4 @@ export function mergePages(
   return mode === "prepend"
     ? result.slice(0, MAX_PAGES)
     : result.slice(-MAX_PAGES);
-}
-
-export function levelProgress(level: number): number {
-  return Math.round((level - Math.floor(level)) * 1000) / 10;
 }

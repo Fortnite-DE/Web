@@ -1,6 +1,5 @@
 import { describe, expect, spyOn, test } from "bun:test";
 import {
-  levelProgress,
   mergePages,
   parsePage,
   safeImage,
@@ -17,6 +16,7 @@ const player = {
   roleColors: ["#ffffff", "invalid"],
   xp: 267,
   level: 1.9,
+  levelProgress: 87.4,
   messageCount: 13,
 };
 const response = (page = 1) => ({
@@ -39,6 +39,8 @@ describe("leaderboard API contract", () => {
     expect(weekly.items[0].xp).toBe(50);
     expect(weekly.currentUser.messageCount).toBe(3);
     expect(weekly.currentUser.level).toBe(player.level);
+    expect(weekly.items[0].levelProgress).toBe(player.levelProgress);
+    expect(weekly.currentUser.levelProgress).toBe(player.levelProgress);
     expect(parsePage(data, 1).items[0].xp).toBe(player.xp);
     expect(() => parsePage(response(), 1, true)).toThrow();
     expect(() =>
@@ -155,14 +157,32 @@ describe("bounded page window", () => {
 });
 
 describe("level progress", () => {
-  test("uses the fractional level as percentage toward the next level", () => {
-    expect(levelProgress(88.1306)).toBe(13.1);
-    expect(levelProgress(1.9010544737530308)).toBe(90.1);
-    expect(levelProgress(0.5)).toBe(50);
+  test("preserves backend progress independently of the fractional level", () => {
+    const parsed = parsePage(response(), 1);
+    expect(parsed.items[0].levelProgress).toBe(87.4);
+    expect(parsed.currentUser.levelProgress).toBe(87.4);
   });
-  test("starts a fresh ring at integer levels without floating-point noise", () => {
-    expect(levelProgress(50)).toBe(0);
-    expect(levelProgress(50.00006666666666)).toBe(0);
-    expect(levelProgress(1.999)).toBe(99.9);
+  test("validates progress bounds for rows and own placement", () => {
+    for (const levelProgress of [
+      undefined,
+      null,
+      "43.1",
+      NaN,
+      Infinity,
+      -1,
+      101,
+    ]) {
+      const invalid = { ...player, levelProgress };
+      expect(() => parsePage({ ...response(), items: [invalid] }, 1)).toThrow();
+      expect(() =>
+        parsePage({ ...response(), currentUser: { ...invalid, page: 1 } }, 1),
+      ).toThrow();
+    }
+    for (const levelProgress of [0, 100]) {
+      expect(
+        parsePage({ ...response(), items: [{ ...player, levelProgress }] }, 1)
+          .items[0].levelProgress,
+      ).toBe(levelProgress);
+    }
   });
 });

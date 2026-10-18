@@ -463,6 +463,7 @@ export function Leaderboard({ userId }: { userId: string | null }) {
                 <span className="personal-label">LEVEL</span>
                 <LevelProgress
                   level={state.currentUser.level}
+                  progress={state.currentUser.levelProgress}
                   focusable={false}
                 />
               </span>
@@ -547,7 +548,10 @@ export function Leaderboard({ userId }: { userId: string | null }) {
                         </div>
                       </td>
                       <td className="number-cell level-number">
-                        <LevelProgress level={player.level} />
+                        <LevelProgress
+                          level={player.level}
+                          progress={player.levelProgress}
+                        />
                       </td>
                       <td className="number-cell">
                         {numbers.format(player.xp)}

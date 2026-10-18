@@ -1,19 +1,18 @@
 "use client";
 
-import { levelProgress } from "@/lib/leaderboard";
-
 const format = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 1 });
 
 export function LevelProgress({
   level,
+  progress,
   focusable = true,
 }: {
   level: number;
+  progress: number;
   focusable?: boolean;
 }) {
   const current = Math.floor(level);
-  const progress = levelProgress(level);
-  const label = `${format.format(progress)} % bis Level ${current + 1}`;
+  const label = `${format.format(progress)} % erreicht · Level ${current + 1}`;
   return (
     <span
       className="level-progress"
