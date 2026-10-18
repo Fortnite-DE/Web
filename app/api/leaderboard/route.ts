@@ -4,12 +4,14 @@ export async function GET(request: Request) {
   const query = new URL(request.url).searchParams;
   const rawPage = query.get("page") ?? "1";
   const userId = query.get("userId");
+  const days = query.get("days");
   const page = Number(rawPage);
   if (
     !/^\d+$/.test(rawPage) ||
     !Number.isSafeInteger(page) ||
     page < 1 ||
-    (userId !== null && !validUserId(userId))
+    (userId !== null && !validUserId(userId)) ||
+    (days !== null && days !== "7")
   ) {
     return Response.json({ error: "Ungültige Anfrage." }, { status: 400 });
   }
@@ -18,6 +20,7 @@ export async function GET(request: Request) {
     guildId: GUILD_ID,
     page: String(page),
     ...(userId ? { userId } : {}),
+    ...(days ? { days } : {}),
   }).toString();
   try {
     const response = await fetch(url, {
@@ -26,7 +29,7 @@ export async function GET(request: Request) {
     });
     if (!response.ok) throw new Error(`Leaderboard HTTP ${response.status}`);
     const data: unknown = await response.json();
-    return Response.json(parsePage(data, page), {
+    return Response.json(parsePage(data, page, days !== null), {
       headers: { "Cache-Control": "no-store" },
     });
   } catch {

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, spyOn, test } from "bun:test";
 import {
   levelProgress,
   mergePages,
@@ -28,6 +28,53 @@ const response = (page = 1) => ({
 });
 
 describe("leaderboard API contract", () => {
+  test("selects period statistics for rows and own placement without changing the level", () => {
+    const weeklyPlayer = { ...player, periodXp: 50, periodMessageCount: 3 };
+    const data = {
+      ...response(),
+      items: [weeklyPlayer],
+      currentUser: { ...weeklyPlayer, page: 114 },
+    };
+    const weekly = parsePage(data, 1, true);
+    expect(weekly.items[0].xp).toBe(50);
+    expect(weekly.currentUser.messageCount).toBe(3);
+    expect(weekly.currentUser.level).toBe(player.level);
+    expect(parsePage(data, 1).items[0].xp).toBe(player.xp);
+    expect(() => parsePage(response(), 1, true)).toThrow();
+    expect(() =>
+      parsePage(
+        { ...data, items: [{ ...weeklyPlayer, periodXp: -1 }] },
+        1,
+        true,
+      ),
+    ).toThrow();
+  });
+  test("forwards days only in weekly mode, preserving user ID and pagination", async () => {
+    const fetchMock = spyOn(globalThis, "fetch").mockImplementation(async () =>
+      Response.json({
+        ...response(2),
+        items: [{ ...player, periodXp: 50, periodMessageCount: 3 }],
+        currentUser: null,
+      }),
+    );
+    try {
+      for (const suffix of ["", "&days=7"]) {
+        const result = await GET(
+          new Request(
+            `https://localhost/api/leaderboard?page=2&userId=${player.userId}${suffix}`,
+          ),
+        );
+        expect(result.status).toBe(200);
+        const upstream = new URL(fetchMock.mock.calls.at(-1)[0]);
+        expect(upstream.searchParams.get("days")).toBe(suffix ? "7" : null);
+        expect(upstream.searchParams.get("userId")).toBe(player.userId);
+        expect(upstream.searchParams.get("page")).toBe("2");
+        expect((await result.json()).items[0].xp).toBe(suffix ? 50 : player.xp);
+      }
+    } finally {
+      fetchMock.mockRestore();
+    }
+  });
   test("preserves Discord snowflakes and the direct lookup page", () => {
     const parsed = parsePage(response(), 1);
     expect(parsed.currentUser.userId).toBe("1011724476754448456");
@@ -72,6 +119,10 @@ describe("leaderboard API contract", () => {
       "page=Infinity",
       "userId=bad",
       "page=9007199254740992",
+      "days=0",
+      "days=8",
+      "days=7.5",
+      "days=",
     ]) {
       const result = await GET(
         new Request(`https://localhost/api/leaderboard?${query}`),

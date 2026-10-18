@@ -1,40 +1,12 @@
 import Link from "next/link";
-import { ActionLink, Brand, DISCORD_URL, Footer } from "@/components/site";
+import { ActionLink, DISCORD_URL, Footer } from "@/components/site";
+import { VerificationFrame } from "@/components/verification-frame";
 
 export function Verification({ success }: { success: boolean }) {
   return (
     <>
       <main id="main">
-        <section
-          className={`verification ${success ? "verification-success" : "verification-error"}`}
-          aria-labelledby="verification-heading"
-        >
-          <div className="verification-symbol" aria-hidden="true">
-            <svg viewBox="0 0 100 100" fill="none">
-              <circle
-                cx="50"
-                cy="50"
-                r="43"
-                stroke="currentColor"
-                strokeWidth="8"
-              />
-              {success ? (
-                <path
-                  d="m28 50 15 15 29-30"
-                  stroke="currentColor"
-                  strokeWidth="8"
-                  strokeLinejoin="round"
-                />
-              ) : (
-                <path
-                  d="m35 35 30 30m0-30L35 65"
-                  stroke="currentColor"
-                  strokeWidth="8"
-                />
-              )}
-            </svg>
-          </div>
-          <div className="verification-elements" aria-hidden="true" />
+        <VerificationFrame success={success}>
           <div className="verification-content">
             <p className="eyebrow">FORTNITE DE DISCORD</p>
             <h1 id="verification-heading">
@@ -52,22 +24,31 @@ export function Verification({ success }: { success: boolean }) {
                 </>
               )}
             </h1>
-            <p className="verification-description">
-              {success
-                ? "Alles bereit. Zurück zu deiner Community."
-                : "Das hat leider nicht geklappt. Wir helfen dir weiter."}
-            </p>
+            {!success && (
+              <p className="verification-description">
+                Das hat leider nicht geklappt. Wir helfen dir weiter.
+              </p>
+            )}
             <ActionLink href={success ? DISCORD_URL : "#hilfe"}>
               {success ? "ZURÜCK ZU DISCORD" : "HILFE ERHALTEN"}
+              {!success && (
+                <span className="verification-arrow" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 66 43"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="6"
+                  >
+                    <path d="m3 3 19 18.5L3 40m20-37 19 18.5L23 40m20-37 19 18.5L43 40" />
+                  </svg>
+                </span>
+              )}
             </ActionLink>
             <Link className="quiet-link" href="/">
               Zur Startseite
             </Link>
           </div>
-          <div className="verification-brand">
-            <Brand />
-          </div>
-        </section>
+        </VerificationFrame>
         {!success && (
           <section id="hilfe" className="help-section container">
             <p className="eyebrow">WIR HELFEN DIR WEITER</p>

@@ -47,7 +47,7 @@ export function safeImage(value: unknown): string | null {
   }
 }
 
-function parsePlayer(value: unknown): Player {
+function parsePlayer(value: unknown, period: boolean): Player {
   if (
     !record(value) ||
     !validUserId(value.userId) ||
@@ -55,9 +55,11 @@ function parsePlayer(value: unknown): Player {
     !Number.isInteger(value.position) ||
     typeof value.position !== "number" ||
     value.position < 1 ||
-    ![value.xp, value.level, value.messageCount].every(
-      (n) => typeof n === "number" && Number.isFinite(n) && n >= 0,
-    )
+    ![
+      period ? value.periodXp : value.xp,
+      value.level,
+      period ? value.periodMessageCount : value.messageCount,
+    ].every((n) => typeof n === "number" && Number.isFinite(n) && n >= 0)
   )
     throw new Error("Ungültige Ranglistendaten.");
   return {
@@ -74,13 +76,19 @@ function parsePlayer(value: unknown): Player {
           )
           .slice(0, 3)
       : [],
-    xp: value.xp as number,
+    xp: (period ? value.periodXp : value.xp) as number,
     level: value.level as number,
-    messageCount: value.messageCount as number,
+    messageCount: (period
+      ? value.periodMessageCount
+      : value.messageCount) as number,
   };
 }
 
-export function parsePage(value: unknown, page: number): LeaderboardPage {
+export function parsePage(
+  value: unknown,
+  page: number,
+  period = false,
+): LeaderboardPage {
   if (Array.isArray(value) && value.length === 0) {
     return { items: [], page, total: 0, currentUser: null, hasNext: false };
   }
@@ -107,13 +115,13 @@ export function parsePage(value: unknown, page: number): LeaderboardPage {
       throw new Error("Ungültige Nutzerplatzierung.");
     }
     currentUser = {
-      ...parsePlayer(value.currentUser),
+      ...parsePlayer(value.currentUser, period),
       page: value.currentUser.page,
       bannerUrl: safeImage(value.currentUser.bannerUrl),
     };
   }
   return {
-    items: value.items.map(parsePlayer),
+    items: value.items.map((item) => parsePlayer(item, period)),
     page,
     total: value.total,
     currentUser,

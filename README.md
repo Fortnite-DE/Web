@@ -17,6 +17,7 @@ bun run dev
 - `/leaderboard`: live level leaderboard with automatic loading on scroll.
 - `/leaderboard?userId=1011724476754448456`: opens at the top with the personal placement card. Clicking the card loads the user's ranking page directly and smoothly centers their highlighted row. Earlier and later pages load automatically when scrolling toward either end, preserving the current viewport. Level rings show progress to the next level on hover or keyboard focus.
 - `/verify/success` and `/verify/error`: animated verification results, with troubleshooting on the error page. Reduced-motion preferences are respected.
+- `/unban?timestamp=…&signature=…&user=…`: checks the signed appeal link, shows the waiting-period countdown, and checks again before redirecting to the application form. `user` is optional. The same-origin `/api/unban` proxy forwards the parameters without caching; signatures are verified by the existing backend.
 
 The same-origin `/api/leaderboard` route reads the public `auth.fn-discord.de` API for guild `398567824471097345`. It validates responses, applies request timeouts, and avoids browser CORS dependencies. No API credentials are required. At most six pages (300 rows) are kept in the browser.
 
@@ -36,3 +37,4 @@ bun run test
 Run `bun run format` to format files. Production commands are `bun run build` and `bun run start`.
 
 Legacy URLs `/leaderboard-beta`, `/verify-error`, and `/verify-success` redirect to their new routes, preserving query parameters.
+`/unban-error` and `/unban-error.html` also redirect to `/unban`, preserving signed link parameters.

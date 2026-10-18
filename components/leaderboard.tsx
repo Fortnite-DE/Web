@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { LeaderboardBackground } from "@/components/leaderboard-background";
 import { LevelProgress } from "@/components/level-progress";
 import {
   startTransition,
@@ -86,6 +87,7 @@ function Username({ player }: { player: Player }) {
 }
 
 export function Leaderboard({ userId }: { userId: string | null }) {
+  const [days, setDays] = useState<7 | null>(null);
   const [state, setState] = useState<BoardState>({
     pages: [],
     currentUser: null,
@@ -131,6 +133,7 @@ export function Leaderboard({ userId }: { userId: string | null }) {
         const query = new URLSearchParams({
           page: String(page),
           ...(userId ? { userId } : {}),
+          ...(days ? { days: String(days) } : {}),
         });
         const response = await fetch(`/api/leaderboard?${query}`, {
           signal: AbortSignal.any([abort.signal, AbortSignal.timeout(15000)]),
@@ -181,7 +184,7 @@ export function Leaderboard({ userId }: { userId: string | null }) {
         if (controller.current === abort) busy.current = false;
       }
     },
-    [userId, pauseAutoLoad],
+    [userId, days, pauseAutoLoad],
   );
 
   useEffect(() => {
@@ -362,40 +365,80 @@ export function Leaderboard({ userId }: { userId: string | null }) {
     resumeAfterScroll();
   };
   const players = state.pages.flatMap((page) => page.items);
+  const switchDays = (nextDays: 7 | null) => {
+    if (nextDays === days) return;
+    controller.current?.abort();
+    busy.current = false;
+    pending.current = null;
+    if (resumeTimer.current) clearTimeout(resumeTimer.current);
+    scrollPaused.current = false;
+    setAutoLoadPaused(false);
+    setState({
+      pages: [],
+      currentUser: null,
+      loading: true,
+      error: null,
+      userMissing: false,
+    });
+    setDays(nextDays);
+  };
   const background =
     state.currentUser?.bannerUrl ?? state.currentUser?.avatarUrl;
   return (
     <>
-      {background && (
-        <div
-          className="personal-backdrop"
-          aria-hidden="true"
-          style={{ backgroundImage: `url(${JSON.stringify(background)})` }}
-        />
-      )}
+      <LeaderboardBackground src={background} loading={state.loading} />
       <div className="mode-bar">
-        <div className="tabs" role="tablist" aria-label="Leaderboard auswählen">
+        <div
+          className={`tabs ${days ? "weekly" : ""}`}
+          role="tablist"
+          aria-label="Leaderboard auswählen"
+          onKeyDown={(event) => {
+            if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key))
+              return;
+            event.preventDefault();
+            const nextDays =
+              event.key === "Home"
+                ? null
+                : event.key === "End"
+                  ? 7
+                  : days
+                    ? null
+                    : 7;
+            switchDays(nextDays);
+            document
+              .getElementById(nextDays ? "weekly-tab" : "level-tab")
+              ?.focus();
+          }}
+        >
           <button
-            className="tab active"
+            className={`tab ${days === null ? "active" : ""}`}
             id="level-tab"
             role="tab"
-            aria-selected="true"
+            aria-selected={days === null}
             aria-controls="level-panel"
+            tabIndex={days === null ? 0 : -1}
+            onClick={() => switchDays(null)}
           >
-            <span className="tab-label">LEVEL</span>
+            <span className="tab-label">GESAMT</span>
           </button>
           <button
-            className="tab"
+            className={`tab ${days === 7 ? "active" : ""}`}
+            id="weekly-tab"
             role="tab"
-            aria-selected="false"
-            disabled
-            title="Demnächst verfügbar"
+            aria-selected={days === 7}
+            aria-controls="level-panel"
+            tabIndex={days === 7 ? 0 : -1}
+            onClick={() => switchDays(7)}
           >
             <span className="tab-label">LETZTE 7 TAGE</span>
           </button>
         </div>
       </div>
-      <section id="level-panel" role="tabpanel" aria-labelledby="level-tab">
+      <section
+        id="level-panel"
+        role="tabpanel"
+        aria-labelledby={days ? "weekly-tab" : "level-tab"}
+      >
         {state.currentUser && (
           <section className="personal-ranking" aria-label="Deine Platzierung">
             <span className="section-kicker">
@@ -436,14 +479,16 @@ export function Leaderboard({ userId }: { userId: string | null }) {
         )}
         {state.userMissing && (
           <p className="notice" role="status">
-            Für diese Nutzer-ID gibt es noch keine Platzierung. Hier siehst du
-            die aktuelle Rangliste.
+            {days
+              ? "Für diese Nutzer-ID gibt es in den letzten 7 Tagen keine Platzierung."
+              : "Für diese Nutzer-ID gibt es noch keine Platzierung."}{" "}
+            Hier siehst du die aktuelle Rangliste.
           </p>
         )}
         <section
           className="ranking"
           ref={ranking}
-          aria-label="Level-Rangliste"
+          aria-label={days ? "Rangliste der letzten 7 Tage" : "Level-Rangliste"}
           aria-busy={state.loading}
         >
           {first && first.page > 1 && (

@@ -17,13 +17,12 @@ export default function Home() {
         </div>
         <section className="home-content container">
           <div className="home-copy">
-            <p className="eyebrow">DEINE COMMUNITY. DEIN SQUAD.</p>
             <h1>
               FORTNITE
               <br />
               <span>DEUTSCHLAND</span>
               <br />
-              DISCORD.
+              DISCORD
             </h1>
             <p className="home-description">
               Die nächste Runde beginnt hier. Finde Mitspieler, teile deine
@@ -35,24 +34,10 @@ export default function Home() {
                 LEADERBOARD
               </ActionLink>
             </div>
-            <div className="community-note">
-              <span className="live-dot" /> Zusammen ins nächste Match.
-            </div>
           </div>
         </section>
-        <LinkStrip />
       </main>
       <Footer />
     </>
-  );
-}
-
-function LinkStrip() {
-  return (
-    <div className="home-strip container">
-      <span>FINDE DEIN SQUAD.</span>
-      <span>STEIG IM LEVEL AUF.</span>
-      <span>WERDE TEIL DAVON.</span>
-    </div>
   );
 }

@@ -34,9 +34,7 @@ export function Header({ title }: { title?: string }) {
             <h1>{title}</h1>
           </>
         ) : (
-          <Link href="/leaderboard" className="header-link">
-            Leaderboard
-          </Link>
+          <ActionLink href="/leaderboard">Leaderboard</ActionLink>
         )}
       </div>
     </header>

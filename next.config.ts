@@ -4,6 +4,16 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/unban-error",
+        destination: "/unban",
+        permanent: true,
+      },
+      {
+        source: "/unban-error.html",
+        destination: "/unban",
+        permanent: true,
+      },
+      {
         source: "/leaderboard-beta",
         destination: "/leaderboard",
         permanent: true,
