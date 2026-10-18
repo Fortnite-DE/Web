@@ -149,3 +149,14 @@ export function mergePages(
     ? result.slice(0, MAX_PAGES)
     : result.slice(-MAX_PAGES);
 }
+
+export function pagesAroundPosition(
+  position: number,
+  total: number,
+  rows: number,
+) {
+  const first = Math.floor((Math.max(1, position - rows) - 1) / PAGE_SIZE) + 1;
+  const last =
+    Math.floor((Math.min(total, position + rows) - 1) / PAGE_SIZE) + 1;
+  return Array.from({ length: last - first + 1 }, (_, index) => first + index);
+}

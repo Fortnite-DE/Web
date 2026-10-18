@@ -1,6 +1,7 @@
 import { describe, expect, spyOn, test } from "bun:test";
 import {
   mergePages,
+  pagesAroundPosition,
   parsePage,
   safeImage,
   validUserId,
@@ -135,6 +136,16 @@ describe("leaderboard API contract", () => {
 });
 
 describe("bounded page window", () => {
+  test("prepares adjacent batches around jump targets without loading intermediate pages", () => {
+    expect(pagesAroundPosition(25, 6000, 12)).toEqual([1]);
+    expect(pagesAroundPosition(50, 6000, 12)).toEqual([1, 2]);
+    expect(pagesAroundPosition(51, 6000, 12)).toEqual([1, 2]);
+    expect(pagesAroundPosition(100, 6000, 12)).toEqual([2, 3]);
+    expect(pagesAroundPosition(101, 6000, 12)).toEqual([2, 3]);
+    expect(pagesAroundPosition(5674, 6000, 12)).toEqual([114]);
+    expect(pagesAroundPosition(1, 6000, 12)).toEqual([1]);
+    expect(pagesAroundPosition(6000, 6000, 12)).toEqual([120]);
+  });
   const page = (number) => parsePage(response(number), number);
   test("keeps the latest six pages on append and removes duplicates", () => {
     let pages = [];

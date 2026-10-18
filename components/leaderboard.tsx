@@ -13,6 +13,7 @@ import {
 } from "react";
 import {
   mergePages,
+  pagesAroundPosition,
   type CurrentPlayer,
   type LeaderboardPage,
   type Player,
@@ -24,6 +25,7 @@ interface RequestState {
   page: number;
   mode: Mode;
   focus?: Focus;
+  contextRows?: number;
 }
 interface BoardState {
   pages: LeaderboardPage[];
@@ -117,6 +119,7 @@ export function Leaderboard({ userId }: { userId: string | null }) {
     }, 200);
   }, []);
   const pauseAutoLoad = useCallback(() => {
+    if (resumeTimer.current) clearTimeout(resumeTimer.current);
     scrollPaused.current = true;
     setAutoLoadPaused(true);
   }, []);
@@ -144,10 +147,22 @@ export function Leaderboard({ userId }: { userId: string | null }) {
       }
       try {
         const data = await fetchPage(request.page);
+        const surrounding =
+          request.focus === "own" && data.currentUser
+            ? await Promise.all(
+                pagesAroundPosition(
+                  data.currentUser.position,
+                  data.total,
+                  request.contextRows ?? 0,
+                )
+                  .filter((page) => page !== data.page)
+                  .map(fetchPage),
+              )
+            : [];
         if (request.focus) await document.fonts.ready;
         if (abort.signal.aborted) return;
         const anchor =
-          request.mode === "replace"
+          request.mode === "replace" || request.focus
             ? undefined
             : Array.from(
                 table.current?.querySelectorAll<HTMLTableRowElement>(
@@ -166,7 +181,15 @@ export function Leaderboard({ userId }: { userId: string | null }) {
             : {}),
         };
         setState((previous) => ({
-          pages: mergePages(previous.pages, data, request.mode),
+          pages: surrounding.reduce(
+            (pages, page) =>
+              mergePages(
+                pages,
+                page,
+                page.page < pages[0].page ? "prepend" : "append",
+              ),
+            mergePages(previous.pages, data, request.mode),
+          ),
           currentUser:
             data.currentUser?.userId === userId ? data.currentUser : null,
           loading: false,
@@ -181,10 +204,14 @@ export function Leaderboard({ userId }: { userId: string | null }) {
             error: request,
           }));
       } finally {
-        if (controller.current === abort) busy.current = false;
+        if (controller.current === abort) {
+          busy.current = false;
+          if (request.focus === "own" || request.focus === "top")
+            resumeAfterScroll();
+        }
       }
     },
-    [userId, days, pauseAutoLoad],
+    [userId, days, pauseAutoLoad, resumeAfterScroll],
   );
 
   useEffect(() => {
@@ -246,11 +273,15 @@ export function Leaderboard({ userId }: { userId: string | null }) {
     const target = pending.current;
     if (!target) return;
     pending.current = null;
+    if (target.focus === "own" || target.focus === "top") pauseAutoLoad();
     if (target.anchor) {
       const row = document.getElementById(target.anchor.id);
-      if (row)
+      const offset = row
+        ? row.getBoundingClientRect().top - target.anchor.top
+        : 0;
+      if (Math.abs(offset) > 0.5)
         window.scrollBy({
-          top: row.getBoundingClientRect().top - target.anchor.top,
+          top: offset,
           behavior: "instant",
         });
     }
@@ -266,7 +297,7 @@ export function Leaderboard({ userId }: { userId: string | null }) {
       window.scrollTo({ top: 0, behavior });
     }
     if (target.focus === "own" || target.focus === "top") resumeAfterScroll();
-  }, [state.pages, userId, resumeAfterScroll]);
+  }, [state.pages, userId, pauseAutoLoad, resumeAfterScroll]);
 
   const last = state.pages.at(-1);
   const first = state.pages[0];
@@ -333,7 +364,18 @@ export function Leaderboard({ userId }: { userId: string | null }) {
   const jumpToUser = () => {
     if (!state.currentUser || busy.current) return;
     const row = document.getElementById(`player-${state.currentUser.userId}`);
-    if (row) {
+    const rowHeight =
+      (
+        row ?? table.current?.querySelector("[data-player]")
+      )?.getBoundingClientRect().height || 60;
+    const contextRows =
+      Math.ceil((window.innerHeight / 2 + 350) / rowHeight) + 1;
+    const ready = pagesAroundPosition(
+      state.currentUser.position,
+      state.pages[0]?.total ?? state.currentUser.position,
+      contextRows,
+    ).every((page) => state.pages.some((loaded) => loaded.page === page));
+    if (row && ready) {
       pauseAutoLoad();
       row.focus({ preventScroll: true });
       row.scrollIntoView({
@@ -346,8 +388,9 @@ export function Leaderboard({ userId }: { userId: string | null }) {
     } else
       void load({
         page: state.currentUser.page,
-        mode: "replace",
+        mode: row ? "append" : "replace",
         focus: "own",
+        contextRows,
       });
   };
   const backToTop = () => {
