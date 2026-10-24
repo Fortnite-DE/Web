@@ -16,9 +16,6 @@ export function LeaderboardBackground({
 
   useEffect(() => {
     if (!src) {
-      if (!loading) {
-        setBackground((previous) => ({ ...previous, active: null }));
-      }
       return;
     }
 
@@ -44,15 +41,15 @@ export function LeaderboardBackground({
     return () => {
       image.onload = null;
     };
-  }, [src, loading]);
+  }, [src]);
+
+  const active = src || loading ? background.active : null;
 
   return background.layers.map((image, index) => (
     <div
       key={index}
       className={
-        background.active === index
-          ? "personal-backdrop is-visible"
-          : "personal-backdrop"
+        active === index ? "personal-backdrop is-visible" : "personal-backdrop"
       }
       aria-hidden="true"
       style={{
